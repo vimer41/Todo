@@ -5,10 +5,15 @@
 
 generator client {
   provider     = "prisma-client-js"
-  output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id        String  @id @default(uuid()) @db.Uuid()
+  full_name String  @db.VarChar(100)
+  telephone String? @db.VarChar(15)
 }
