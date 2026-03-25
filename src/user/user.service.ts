@@ -33,7 +33,7 @@ export class UserService {
       });
     }
     catch(err) {
-      if(err.code = "P2025"){
+      if(err.code === "P2025"){
         throw new NotFoundException('User not found');
       }
       throw err;
@@ -50,7 +50,7 @@ export class UserService {
       })
     }
     catch(err) {
-      if(err.code = "P2025"){
+      if(err.code === "P2025"){
         throw new NotFoundException('User not found');
       }
       throw err;
