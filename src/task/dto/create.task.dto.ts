@@ -25,8 +25,4 @@ export class CreateTaskDto {
   @IsDate()
   completed_at?: Date | null;
 
-  @IsNotEmpty()
-  @MinLength(1)
-  @IsUUID()
-  userId: string;
 }

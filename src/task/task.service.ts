@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -11,13 +13,29 @@ import { UpdateTaskDTO } from './dto/update.task.dto';
 export class TaskService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createTask(dto: CreateTaskDto) {
+  async createTask(userId: string, dto: CreateTaskDto) {
+    if(!userId) {
+      console.log(userId);
+      throw new BadRequestException('User Id is required');
+    }
     try {
       const createdTask = await this.prismaService.task.create({
-        data: dto,
+        data: {
+          title: dto.title,
+          description: dto.description,
+          completed: dto.completed,
+          completed_at: dto.completed ? new Date() : null,
+          userId: userId,
+        },
       });
       return { task_id: createdTask.id };
     } catch (err) {
+      if(err.code == "P2003") {
+        throw new NotFoundException('User not found');
+      }
+      else if(err.code == "P2007"){
+        throw new BadRequestException('Invalid data provided');
+      }
       console.log(err);
       throw new InternalServerErrorException('User was not created');
     }
@@ -84,7 +102,7 @@ export class TaskService {
       });
     } catch (err) {
       if (err.code === 'P2025') {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException('User or Task not found');
       }
       throw err;
     }
