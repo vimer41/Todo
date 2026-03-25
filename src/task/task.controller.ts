@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
-  Controller, Delete,
+  Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -17,10 +19,7 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post('/create')
-  async create(
-    @Body() dto: CreateTaskDto,
-    @Query('userId') userId: string
-  ) {
+  async create(@Body() dto: CreateTaskDto, @Query('userId') userId: string) {
     return this.taskService.createTask(userId, dto);
   }
 
@@ -35,8 +34,16 @@ export class TaskController {
   @Get('/')
   async getAllTasksUser(
     @Query('userId') userId: string,
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('offset', ParseIntPipe) offset: number,
+    @Query(
+      'limit',
+      new ParseIntPipe({
+        optional: true,
+        exceptionFactory: () =>
+          new BadRequestException('Limit must be a number'),
+      }),
+    )
+    limit?: number,
+    @Query('offset', new ParseIntPipe({ optional: true })) offset?: number,
   ) {
     return this.taskService.getAllTasks(limit, offset, userId);
   }
@@ -53,7 +60,8 @@ export class TaskController {
   @Delete('delete/')
   async deleteTask(
     @Query('taskId') taskId: string,
-    @Query('userId') userId: string,) {
+    @Query('userId') userId: string,
+  ) {
     return this.taskService.deleteTask(taskId, userId);
   }
 }
